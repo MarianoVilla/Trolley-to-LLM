@@ -5,6 +5,12 @@ export interface Question {
   options: string[]
 }
 
+export interface QuestionCreate {
+  title: string
+  prompt: string
+  options: string[]
+}
+
 export interface ModelInfo {
   model_id: string
   display_name: string

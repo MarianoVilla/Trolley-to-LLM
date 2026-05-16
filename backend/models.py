@@ -9,6 +9,18 @@ class Question(BaseModel):
     options: list[str]
 
 
+class QuestionCreate(BaseModel):
+    title: str
+    prompt: str
+    options: list[str]
+
+
+class QuestionUpdate(BaseModel):
+    title: Optional[str] = None
+    prompt: Optional[str] = None
+    options: Optional[list[str]] = None
+
+
 class ModelInfo(BaseModel):
     model_id: str
     display_name: str
@@ -42,6 +54,7 @@ class ModelResponse(BaseModel):
 class AskRequest(BaseModel):
     question_id: int
     slots: list[Slot]
+    force: bool = False
 
 
 class AskResponse(BaseModel):
@@ -51,6 +64,9 @@ class AskResponse(BaseModel):
 
 class StoredResponse(BaseModel):
     question_id: int
+    question_title: Optional[str] = None
+    question_prompt: Optional[str] = None
+    question_options: Optional[list[str]] = None
     slot_id: str
     model_id: str
     display_name: str

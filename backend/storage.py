@@ -3,7 +3,7 @@ import io
 import json
 import os
 from datetime import datetime, timezone
-from models import ModelResponse, StoredResponse
+from models import ModelResponse, Question, StoredResponse
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RESPONSES_FILE = os.path.join(DATA_DIR, "responses.json")
@@ -41,7 +41,7 @@ def get_cached(question_id: int, slot_id: str, model_id: str, worldview_id: str)
     return None
 
 
-def save_response(question_id: int, response: ModelResponse) -> StoredResponse:
+def save_response(question_id: int, response: ModelResponse, question: Question) -> StoredResponse:
     records = _load_all()
     records = [
         r for r in records
@@ -49,6 +49,9 @@ def save_response(question_id: int, response: ModelResponse) -> StoredResponse:
     ]
     stored = StoredResponse(
         question_id=question_id,
+        question_title=question.title,
+        question_prompt=question.prompt,
+        question_options=question.options,
         slot_id=response.slot_id,
         model_id=response.model_id,
         display_name=response.display_name,
@@ -80,6 +83,9 @@ def export_csv() -> str:
     output = io.StringIO()
     fieldnames = [
         "question_id",
+        "question_title",
+        "question_prompt",
+        "question_options",
         "slot_id",
         "model_id",
         "display_name",
@@ -94,5 +100,7 @@ def export_csv() -> str:
     writer = csv.DictWriter(output, fieldnames=fieldnames)
     writer.writeheader()
     for r in records:
-        writer.writerow(r.model_dump())
+        row = r.model_dump()
+        row["question_options"] = "; ".join(row["question_options"] or [])
+        writer.writerow(row)
     return output.getvalue()

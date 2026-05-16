@@ -14,6 +14,8 @@ from models import (
     ModelInfo,
     ModelResponse,
     Question,
+    QuestionCreate,
+    QuestionUpdate,
     StoredResponse,
     Worldview,
 )
@@ -37,6 +39,11 @@ def _load_questions_from_file(path: str) -> list[Question]:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return [Question(**q) for q in data]
+
+
+def _save_questions_to_file(path: str, questions: list[Question]) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump([q.model_dump() for q in questions], f, indent=2, ensure_ascii=False)
 
 
 def _parse_questions_csv(content: str) -> list[Question]:
@@ -66,6 +73,37 @@ def get_questions():
     return _questions
 
 
+@app.post("/api/questions", response_model=Question, status_code=201)
+def create_question(body: QuestionCreate):
+    global _questions
+    new_id = max((q.id for q in _questions), default=0) + 1
+    question = Question(id=new_id, title=body.title, prompt=body.prompt, options=body.options)
+    _questions.append(question)
+    _save_questions_to_file(QUESTIONS_FILE, _questions)
+    return question
+
+
+@app.put("/api/questions/{question_id}", response_model=Question)
+def update_question(question_id: int, body: QuestionUpdate):
+    for i, q in enumerate(_questions):
+        if q.id == question_id:
+            updated = q.model_copy(update={k: v for k, v in body.model_dump().items() if v is not None})
+            _questions[i] = updated
+            _save_questions_to_file(QUESTIONS_FILE, _questions)
+            return updated
+    raise HTTPException(status_code=404, detail="Question not found")
+
+
+@app.delete("/api/questions/{question_id}", status_code=204)
+def delete_question(question_id: int):
+    global _questions
+    before = len(_questions)
+    _questions = [q for q in _questions if q.id != question_id]
+    if len(_questions) == before:
+        raise HTTPException(status_code=404, detail="Question not found")
+    _save_questions_to_file(QUESTIONS_FILE, _questions)
+
+
 @app.get("/api/models", response_model=list[ModelInfo])
 def get_models():
     return [ModelInfo(**m) for m in MODELS]
@@ -86,7 +124,7 @@ async def ask(request: AskRequest):
     slots_to_query = []
 
     for slot in request.slots:
-        cached = storage.get_cached(question.id, slot.slot_id, slot.model_id, slot.worldview_id)
+        cached = None if request.force else storage.get_cached(question.id, slot.slot_id, slot.model_id, slot.worldview_id)
         if cached:
             responses.append(
                 ModelResponse(
@@ -108,7 +146,7 @@ async def ask(request: AskRequest):
     if slots_to_query:
         fresh = await ask_slots(question, slots_to_query)
         for resp in fresh:
-            storage.save_response(question.id, resp)
+            storage.save_response(question.id, resp, question)
         responses.extend(fresh)
 
     slot_order = {s.slot_id: i for i, s in enumerate(request.slots)}
@@ -152,4 +190,5 @@ async def upload_questions(file: UploadFile = File(...)):
             _questions = [Question(**q) for q in data]
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Failed to parse file: {exc}")
+    _save_questions_to_file(QUESTIONS_FILE, _questions)
     return _questions

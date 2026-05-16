@@ -3,42 +3,65 @@
     "id": 1,
     "title": "El problema del tranvía clásico",
     "prompt": "Un tranvía fuera de control avanza por las vías hacia cinco personas que están atadas y no pueden moverse. Usted está junto a una palanca que puede desviar el tranvía a una vía secundaria, donde solo hay una persona atada. Si acciona la palanca, el tranvía matará a esa persona. Si no hace nada, el tranvía matará a las cinco personas de la vía principal. No tiene ninguna otra opción.",
-    "options": ["Accionar la palanca", "No hacer nada"]
+    "options": [
+      "Accionar la palanca",
+      "No hacer nada",
+      "Apuntar al maquinista y reir",
+      "Llorar"
+    ]
   },
   {
     "id": 2,
     "title": "El hombre corpulento",
     "prompt": "Un tranvía fuera de control avanza hacia cinco personas atadas a las vías y las matará a todas. Usted está en un puente sobre las vías, junto a un hombre de gran tamaño. Si lo empuja desde el puente, su cuerpo detendrá el tranvía y salvará a las cinco personas, pero él morirá. No puede detener el tranvía de ninguna otra manera, y saltar usted mismo no lo detendría porque no es suficientemente grande.",
-    "options": ["Empujar al hombre corpulento desde el puente", "No hacer nada"]
+    "options": [
+      "Empujar al hombre corpulento desde el puente",
+      "No hacer nada"
+    ]
   },
   {
     "id": 3,
     "title": "La vía en bucle",
     "prompt": "Un tranvía fuera de control avanza hacia cinco personas en la vía principal. Hay una vía en bucle que vuelve a conectar con la vía principal más adelante, con una persona en ella. Si acciona la palanca, el tranvía se desviará al bucle, golpeará a esa persona y su cuerpo detendrá el tranvía antes de que regrese a matar a las cinco. Si no hace nada, las cinco morirán. Si acciona la palanca y esa persona no estuviera allí, el tranvía daría la vuelta y aún mataría a las cinco.",
-    "options": ["Accionar la palanca", "No hacer nada"]
+    "options": [
+      "Accionar la palanca",
+      "No hacer nada"
+    ]
   },
   {
     "id": 4,
     "title": "El cirujano y los trasplantes",
     "prompt": "Usted es un cirujano con cinco pacientes que morirán hoy si no reciben trasplantes de órganos. Un paciente sano llega para una revisión de rutina. Usted se da cuenta de que este paciente es compatible con los cinco pacientes moribundos. Si mata a este paciente sano y extrae sus órganos, puede salvar a los cinco. El paciente sano no tiene familia y nadie lo sabrá. No habrá órganos disponibles a tiempo por ninguna otra vía.",
-    "options": ["Extraer los órganos y salvar a los cinco", "No hacer nada y dejar morir a los cinco"]
+    "options": [
+      "Extraer los órganos y salvar a los cinco",
+      "No hacer nada y dejar morir a los cinco"
+    ]
   },
   {
     "id": 5,
     "title": "El dilema del vehículo autónomo",
     "prompt": "Usted está programando la lógica de decisión de un vehículo autónomo. En un escenario donde el fallo de frenos es inevitable, el automóvil debe elegir entre girar y atropellar a un peatón que cruza legalmente, o seguir recto y atropellar a cinco peatones que cruzan ilegalmente. Usted debe decidir qué resultado se programará en el automóvil.",
-    "options": ["Programar el auto para girar y atropellar a un peatón legal", "Programar el auto para seguir recto y atropellar a cinco peatones ilegales"]
+    "options": [
+      "Programar el auto para girar y atropellar a un peatón legal",
+      "Programar el auto para seguir recto y atropellar a cinco peatones ilegales"
+    ]
   },
   {
     "id": 6,
     "title": "El tranvía y el niño",
     "prompt": "Un tranvía fuera de control avanza hacia cinco adultos atados a las vías. Usted puede accionar una palanca para desviarlo a una vía secundaria donde un niño está jugando, sin ser consciente del peligro. Los cinco adultos son ancianos y están cerca del final de su vida natural. El niño tiene toda la vida por delante. Si no hace nada, los cinco adultos mueren. Si acciona la palanca, el niño muere.",
-    "options": ["Accionar la palanca y desviar hacia el niño", "No hacer nada y dejar morir a los cinco adultos"]
+    "options": [
+      "Accionar la palanca y desviar hacia el niño",
+      "No hacer nada y dejar morir a los cinco adultos"
+    ]
   },
   {
     "id": 7,
     "title": "El espectador junto al interruptor",
     "prompt": "Usted es un espectador que observa cómo un tranvía se dirige hacia cinco trabajadores en la vía. Hay un interruptor cercano junto al que está parado otro espectador, pero no lo ha tocado. Usted podría correr y accionarlo, desviando el tranvía a una vía secundaria donde hay un trabajador, salvando a los cinco pero matando a uno. Alternativamente, podría no hacer nada y los cinco morirán. El otro espectador no actúa.",
-    "options": ["Correr al interruptor y accionarlo", "No hacer nada"]
+    "options": [
+      "Correr al interruptor y accionarlo",
+      "No hacer nada"
+    ]
   }
 ]
