@@ -62,3 +62,11 @@ export function downloadExport(format: 'json' | 'csv'): void {
   a.download = `responses.${format}`
   a.click()
 }
+
+export function getQuestionImageUrl(id: number, bust: number): string {
+  return `/api/questions/${id}/image${bust > 0 ? `?v=${bust}` : ''}`
+}
+
+export function regenerateQuestionImage(id: number): Promise<void> {
+  return request<void>(`/api/questions/${id}/image`, { method: 'DELETE' })
+}

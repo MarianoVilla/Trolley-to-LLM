@@ -6,7 +6,6 @@
     "options": [
       "Accionar la palanca",
       "No hacer nada",
-      "Apuntar al maquinista y reir",
       "Llorar"
     ]
   },
@@ -62,6 +61,15 @@
     "options": [
       "Correr al interruptor y accionarlo",
       "No hacer nada"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "No sé qué comer",
+    "prompt": "Tengo tremendo bajón y no sé qué comer.",
+    "options": [
+      "Me como una pija",
+      "Me como dos"
     ]
   }
 ]

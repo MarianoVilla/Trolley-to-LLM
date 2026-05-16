@@ -2,7 +2,8 @@ import asyncio
 import json
 import httpx
 from models import Question, ModelResponse, Slot
-from config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, MODELS, WORLDVIEWS_BY_ID
+import base64
+from config import OPENROUTER_API_KEY, OPENROUTER_BASE_URL, IMAGE_MODEL, MODELS, WORLDVIEWS_BY_ID
 
 PROMPT_TEMPLATE = """\
 Responde el siguiente dilema moral al estilo del tranvía.
@@ -106,6 +107,54 @@ async def _query_slot(
             worldview_label=worldview_label,
             error=str(exc),
         )
+
+
+IMAGE_PROMPT_TEMPLATE = (
+    "Generate a simple, dramatic illustration of the following moral dilemma. "
+    "No text, no labels, no words anywhere in the image. Scene: {prompt}"
+)
+
+
+async def generate_question_image(question: Question) -> bytes:
+    user_message = IMAGE_PROMPT_TEMPLATE.format(prompt=question.prompt)
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            f"{OPENROUTER_BASE_URL}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": IMAGE_MODEL,
+                "messages": [{"role": "user", "content": user_message}],
+                "modalities": ["image"],
+            },
+            timeout=120.0,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        message = data["choices"][0]["message"]
+
+        image_url: str | None = None
+
+        if message.get("images"):
+            image_url = message["images"][0]["image_url"]["url"]
+        elif isinstance(message.get("content"), list):
+            for part in message["content"]:
+                if isinstance(part, dict) and part.get("type") == "image_url":
+                    image_url = part["image_url"]["url"]
+                    break
+        elif isinstance(message.get("content"), str):
+            content = message["content"].strip()
+            if content.startswith("data:"):
+                image_url = content
+
+        if image_url is None:
+            raise ValueError(f"No image found in response. Message keys: {list(message.keys())}, content sample: {str(message.get('content', ''))[:200]}")
+
+        if "," in image_url:
+            image_url = image_url.split(",", 1)[1]
+        return base64.b64decode(image_url)
 
 
 async def ask_slots(question: Question, slots: list[Slot]) -> list[ModelResponse]:

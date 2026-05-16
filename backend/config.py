@@ -7,6 +7,7 @@ OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = os.getenv(
     "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
 )
+IMAGE_MODEL = os.getenv("IMAGE_MODEL", "bytedance-seed/seedream-4.5")
 
 MODELS = [
     {"model_id": "openai/gpt-4o", "display_name": "GPT-4o"},

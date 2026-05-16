@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from config import MODELS, WORLDVIEWS
-from llm_service import ask_slots
+from llm_service import ask_slots, generate_question_image
 from models import (
     AskRequest,
     AskResponse,
@@ -22,6 +22,7 @@ from models import (
 import storage
 
 QUESTIONS_FILE = os.path.join(os.path.dirname(__file__), "questions.json")
+IMAGES_DIR = os.path.join(os.path.dirname(__file__), "data", "images")
 
 app = FastAPI(title="Trolley Problem LLM Comparison")
 
@@ -33,6 +34,20 @@ app.add_middleware(
 )
 
 _questions: list[Question] = []
+
+
+def _image_path(question_id: int) -> str:
+    return os.path.join(IMAGES_DIR, f"{question_id}.img")
+
+
+def _detect_media_type(data: bytes) -> str:
+    if data[:2] == b'\xff\xd8':
+        return 'image/jpeg'
+    if data[:8] == b'\x89PNG\r\n\x1a\n':
+        return 'image/png'
+    if data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+        return 'image/webp'
+    return 'image/octet-stream'
 
 
 def _load_questions_from_file(path: str) -> list[Question]:
@@ -102,6 +117,38 @@ def delete_question(question_id: int):
     if len(_questions) == before:
         raise HTTPException(status_code=404, detail="Question not found")
     _save_questions_to_file(QUESTIONS_FILE, _questions)
+    cached = _image_path(question_id)
+    if os.path.exists(cached):
+        os.remove(cached)
+
+
+@app.get("/api/questions/{question_id}/image")
+async def get_question_image(question_id: int):
+    question = next((q for q in _questions if q.id == question_id), None)
+    if question is None:
+        raise HTTPException(status_code=404, detail="Question not found")
+    path = _image_path(question_id)
+    if not os.path.exists(path):
+        try:
+            image_bytes = await generate_question_image(question)
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"Image generation failed: {exc}")
+        os.makedirs(IMAGES_DIR, exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(image_bytes)
+    else:
+        with open(path, "rb") as f:
+            image_bytes = f.read()
+    return Response(content=image_bytes, media_type=_detect_media_type(image_bytes))
+
+
+@app.delete("/api/questions/{question_id}/image", status_code=204)
+def delete_question_image(question_id: int):
+    if not any(q.id == question_id for q in _questions):
+        raise HTTPException(status_code=404, detail="Question not found")
+    path = _image_path(question_id)
+    if os.path.exists(path):
+        os.remove(path)
 
 
 @app.get("/api/models", response_model=list[ModelInfo])
