@@ -12,7 +12,6 @@ from models import (
     AskRequest,
     AskResponse,
     ModelInfo,
-    ModelResponse,
     Question,
     QuestionCreate,
     QuestionUpdate,
@@ -167,37 +166,9 @@ async def ask(request: AskRequest):
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
 
-    responses: list[ModelResponse] = []
-    slots_to_query = []
-
-    for slot in request.slots:
-        cached = None if request.force else storage.get_cached(question.id, slot.slot_id, slot.model_id, slot.worldview_id)
-        if cached:
-            responses.append(
-                ModelResponse(
-                    slot_id=cached.slot_id,
-                    model_id=cached.model_id,
-                    display_name=cached.display_name,
-                    worldview_id=cached.worldview_id,
-                    worldview_label=cached.worldview_label,
-                    choice=cached.choice,
-                    reasoning=cached.reasoning,
-                    moral_framework=cached.moral_framework,
-                    error=cached.error,
-                    cached=True,
-                )
-            )
-        else:
-            slots_to_query.append(slot)
-
-    if slots_to_query:
-        fresh = await ask_slots(question, slots_to_query)
-        for resp in fresh:
-            storage.save_response(question.id, resp, question)
-        responses.extend(fresh)
-
-    slot_order = {s.slot_id: i for i, s in enumerate(request.slots)}
-    responses.sort(key=lambda r: slot_order.get(r.slot_id, 999))
+    responses = await ask_slots(question, request.slots)
+    for resp in responses:
+        storage.save_response(question, resp)
 
     return AskResponse(question_id=question.id, responses=responses)
 

@@ -40,7 +40,6 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [initError, setInitError] = useState<string | null>(null)
   const [modal, setModal] = useState<ModalState>(null)
-  const [forceReask, setForceReask] = useState(false)
 
   const prevSlotsRef = useRef<Slot[]>([])
 
@@ -92,7 +91,7 @@ export default function App() {
     if (!question || slots.length === 0) return
     setLoading(true)
     try {
-      const result = await askQuestion(question.id, slots, forceReask)
+      const result = await askQuestion(question.id, slots)
       setResponsesMap((prev) => ({ ...prev, [question.id]: result.responses }))
     } catch (err) {
       alert(`Error: ${err}`)
@@ -205,8 +204,6 @@ export default function App() {
               onEdit={() => setModal({ mode: 'edit', question })}
               onDelete={handleDeleteQuestion}
               loading={loading}
-              forceReask={forceReask}
-              onToggleForce={() => setForceReask((v) => !v)}
             />
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
