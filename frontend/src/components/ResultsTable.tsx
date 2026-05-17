@@ -60,9 +60,6 @@ export default function ResultsTable({ slots, responses, loading }: Props) {
               <tr key={resp.slot_id} className={`border-l-4 ${colorClass}`}>
                 <td className="py-3 pr-4 pl-3 font-semibold text-gray-800 align-top">
                   {resp.display_name}
-                  {resp.cached && (
-                    <span className="ml-1 text-xs text-gray-400 font-normal">(cached)</span>
-                  )}
                 </td>
                 <td className="py-3 pr-4 align-top text-gray-600 text-xs italic">
                   {resp.worldview_label}

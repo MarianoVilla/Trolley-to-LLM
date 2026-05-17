@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import io
 import json
 import os
@@ -25,30 +26,34 @@ def _save_all(records: list[dict]) -> None:
         json.dump(records, f, indent=2, ensure_ascii=False)
 
 
-def _matches(record: dict, question_id: int, slot_id: str, model_id: str, worldview_id: str) -> bool:
+def compute_question_hash(question: Question) -> str:
+    payload = {
+        "title": question.title.strip(),
+        "prompt": question.prompt.strip(),
+        "options": [o.strip() for o in question.options],
+    }
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _is_duplicate(record: dict, question_hash: str, model_id: str, worldview_id: str) -> bool:
     return (
-        record["question_id"] == question_id
-        and record.get("slot_id") == slot_id
+        record.get("question_hash") == question_hash
         and record.get("model_id") == model_id
         and record.get("worldview_id") == worldview_id
     )
 
 
-def get_cached(question_id: int, slot_id: str, model_id: str, worldview_id: str) -> StoredResponse | None:
-    for record in _load_all():
-        if _matches(record, question_id, slot_id, model_id, worldview_id):
-            return StoredResponse(**record)
-    return None
-
-
-def save_response(question_id: int, response: ModelResponse, question: Question) -> StoredResponse:
+def save_response(question: Question, response: ModelResponse) -> StoredResponse | None:
+    question_hash = compute_question_hash(question)
     records = _load_all()
-    records = [
-        r for r in records
-        if not _matches(r, question_id, response.slot_id, response.model_id, response.worldview_id)
-    ]
+
+    if any(_is_duplicate(r, question_hash, response.model_id, response.worldview_id) for r in records):
+        return None
+
     stored = StoredResponse(
-        question_id=question_id,
+        question_id=question.id,
+        question_hash=question_hash,
         question_title=question.title,
         question_prompt=question.prompt,
         question_options=question.options,
@@ -83,6 +88,7 @@ def export_csv() -> str:
     output = io.StringIO()
     fieldnames = [
         "question_id",
+        "question_hash",
         "question_title",
         "question_prompt",
         "question_options",

@@ -38,7 +38,6 @@ export interface ModelResponse {
   reasoning: string | null
   moral_framework: string | null
   error: string | null
-  cached: boolean
 }
 
 export interface AskResponse {

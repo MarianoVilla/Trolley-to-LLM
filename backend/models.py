@@ -48,13 +48,11 @@ class ModelResponse(BaseModel):
     reasoning: Optional[str] = None
     moral_framework: Optional[str] = None
     error: Optional[str] = None
-    cached: bool = False
 
 
 class AskRequest(BaseModel):
     question_id: int
     slots: list[Slot]
-    force: bool = False
 
 
 class AskResponse(BaseModel):
@@ -64,6 +62,7 @@ class AskResponse(BaseModel):
 
 class StoredResponse(BaseModel):
     question_id: int
+    question_hash: Optional[str] = None
     question_title: Optional[str] = None
     question_prompt: Optional[str] = None
     question_options: Optional[list[str]] = None

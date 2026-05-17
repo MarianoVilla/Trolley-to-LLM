@@ -12,8 +12,6 @@ interface Props {
   onEdit: () => void
   onDelete: () => void
   loading: boolean
-  forceReask: boolean
-  onToggleForce: () => void
 }
 
 export default function QuestionCard({
@@ -26,8 +24,6 @@ export default function QuestionCard({
   onEdit,
   onDelete,
   loading,
-  forceReask,
-  onToggleForce,
 }: Props) {
   const [imageBust, setImageBust] = useState(0)
   const [imageLoading, setImageLoading] = useState(true)
@@ -179,26 +175,13 @@ export default function QuestionCard({
           </ul>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onAsk}
-            disabled={loading}
-            className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? 'Asking models…' : 'Send to All Models'}
-          </button>
-          <label className="flex items-center gap-2 cursor-pointer select-none shrink-0">
-            <div
-              onClick={onToggleForce}
-              className={`relative w-9 h-5 rounded-full transition-colors ${forceReask ? 'bg-amber-500' : 'bg-gray-200'}`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${forceReask ? 'translate-x-4' : 'translate-x-0'}`}
-              />
-            </div>
-            <span className="text-sm text-gray-500">Bypass cache</span>
-          </label>
-        </div>
+        <button
+          onClick={onAsk}
+          disabled={loading}
+          className="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        >
+          {loading ? 'Asking models…' : 'Send to All Models'}
+        </button>
       </div>
     </div>
     </>
