@@ -22,11 +22,11 @@ export function fetchWorldviews(): Promise<Worldview[]> {
   return request<Worldview[]>('/api/worldviews')
 }
 
-export function askQuestion(questionId: number, slots: Slot[], force = false): Promise<AskResponse> {
+export function askQuestion(questionId: number, slots: Slot[]): Promise<AskResponse> {
   return request<AskResponse>('/api/ask', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question_id: questionId, slots, force }),
+    body: JSON.stringify({ question_id: questionId, slots }),
   })
 }
 
